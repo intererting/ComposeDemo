@@ -16,6 +16,7 @@ import androidx.ui.material.MaterialColors
 import androidx.ui.material.MaterialTheme
 import androidx.ui.res.imageResource
 import androidx.ui.tooling.preview.Preview
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,26 +29,39 @@ class MainActivity : AppCompatActivity() {
 
 @Composable
 fun Greeting(name: String) {
-//    var testMemo = +memo { testMemo() }
-//    var testMemo = "1111111111111111"
+    //viewModel数据刷新
     val testModel = TestModel("yuliyang")
+    //测试State数据刷新
+    val stateModel = +state { "stateBefore" }
     Column(
         crossAxisSize = LayoutSize.Expand,
         crossAxisAlignment = CrossAxisAlignment.Center
     ) {
-        var testMemo = +memo { testMemo() }
-        Text(text = "Hello $testMemo")
-        HeightSpacer(height = 20.dp)
-        Text(text = testModel.name)
-        HeightSpacer(height = 20.dp)
+        //测试slot存储
+        val testMemo = +memo { testMemo() }
+        Text(text = "testMemo $testMemo")
+        HeightSpacer(height = 30.dp)
+        Text(text = "testModel.name  ${testModel.name}")
+        HeightSpacer(height = 30.dp)
+        Text(text = "stateModel  ${stateModel.value}")
+        HeightSpacer(height = 30.dp)
         PressReleasedGestureDetector(onRelease = { testModel.name = "after change" }) {
-            Text(text = "clickTest")
+            Text(text = "clickTestModel")
         }
-        HeightSpacer(height = 200.dp)
-        PressReleasedGestureDetector(onRelease = { testMemo = "after change___________" }) {
-            Text(text = "clickTest____B")
+        HeightSpacer(height = 30.dp)
+        PressReleasedGestureDetector(onRelease = { stateModel.value = "stateAfter" }) {
+            Text(text = "clickTestState")
         }
-
+        //测试slots的bug,slot位未刷新，获取的还是缓存值
+        val randomNum = Math.random()
+        println("randomNum  $randomNum")
+        if (randomNum > 0.5) {
+            val slotA = +memo { slotA() }
+            println("slotA  $slotA")
+        } else {
+            val slotB = +memo { slotB() }
+            println("slotB  $slotB")
+        }
     }
 }
 
@@ -64,6 +78,16 @@ fun testMemo(): String {
 @Composable
 fun imageTest() {
 
+}
+
+fun slotA(): String {
+    println("slotA init")
+    return "slotA"
+}
+
+fun slotB(): String {
+    println("slotB init")
+    return "slotB"
 }
 
 @Preview
